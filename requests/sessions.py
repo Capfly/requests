@@ -457,7 +457,7 @@ class Session(SessionRedirectMixin):
     def request(self, method, url,
             params=None, data=None, headers=None, cookies=None, files=None,
             auth=None, timeout=None, allow_redirects=True, proxies=None,
-            hooks=None, stream=None, verify=None, cert=None, json=None):
+            hooks=None, stream=None, verify=None, cert=None, json=None, check_dane=False):
         """Constructs a :class:`Request <Request>`, prepares it and sends it.
         Returns :class:`Response <Response>` object.
 
@@ -497,6 +497,8 @@ class Session(SessionRedirectMixin):
             may be useful during local development or testing.
         :param cert: (optional) if String, path to ssl client cert file (.pem).
             If Tuple, ('cert', 'key') pair.
+        :param check_dane: (optional) whether we want to check for dane records
+            abscene of such records (TLSA) will result in a failure to the connection
         :rtype: requests.Response
         """
         # Create the Request.
@@ -524,6 +526,7 @@ class Session(SessionRedirectMixin):
         send_kwargs = {
             'timeout': timeout,
             'allow_redirects': allow_redirects,
+            'check_dane': check_dane,
         }
         send_kwargs.update(settings)
         resp = self.send(prep, **send_kwargs)

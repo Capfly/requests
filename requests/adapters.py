@@ -120,6 +120,7 @@ class HTTPAdapter(BaseAdapter):
             self.max_retries = Retry.from_int(max_retries)
         self.config = {}
         self.proxy_manager = {}
+        self.check_dane = False
 
         super(HTTPAdapter, self).__init__()
 
@@ -392,7 +393,7 @@ class HTTPAdapter(BaseAdapter):
 
         return headers
 
-    def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
+    def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None, check_dane=False):
         """Sends PreparedRequest object. Returns Response object.
 
         :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
@@ -413,6 +414,9 @@ class HTTPAdapter(BaseAdapter):
             conn = self.get_connection(request.url, proxies)
         except LocationValueError as e:
             raise InvalidURL(e, request=request)
+
+        if check_dane:
+            conn.set_dane_enable(check_dane)
 
         self.cert_verify(conn, request.url, verify, cert)
         url = self.request_url(request, proxies)
